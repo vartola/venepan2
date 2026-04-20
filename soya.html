@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Soya - VENEPAN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="container">
+    <aside class="sidebar"></aside>
+
+    <main class="main-content">
+        <!-- HEADER CON MENÚ HAMBURGUESA Y LUPA -->
+        <header class="top-bar">
+            <div class="page-info">
+                <h2>Panel de Control de Soya</h2>
+                <span>Gestión de Producción y Despacho</span>
+            </div>
+
+            <!-- MENÚ HAMBURGUESA Y LUPA -->
+            <div class="top-icons">
+                <!-- Contenedor del menú desplegable -->
+                <div class="menu-desplegable-container">
+                    <i class="fas fa-bars menu-hamburguesa" id="menuHamburguesa" style="cursor: pointer;"></i>
+                    
+                    <!-- Menú desplegable -->
+                    <div class="menu-desplegable" id="menuDesplegable">
+                        <div class="menu-item" data-seccion="produccion">
+                            <i class="fas fa-industry"></i>
+                            <span>Registro de Producción</span>
+                        </div>
+                        <div class="menu-item" data-seccion="despacho">
+                            <i class="fas fa-truck-loading"></i>
+                            <span>Entrega a Despacho</span>
+                        </div>
+                    </div>
+                </div>
+        
+                <i class="fas fa-search" id="lupa-busqueda" style="cursor: pointer;"></i>
+            </div>
+        </header>
+
+        <button id="btn-abrir-form-soya" class="btn-flotante" title="Nuevo registro de producción/despacho">
+            <i class="fas fa-plus"></i>
+        </button>
+
+       <!-- FORMULARIO DE PRODUCCIÓN (MODAL) -->
+<div id="form-overlay-soya" class="form-overlay"></div>
+
+<div id="form-contenedor-produccion" class="form-contenedor">
+    <div class="form-header">
+        <h2>
+            <i class="fas fa-industry"></i>
+            Registro de Producción de Soya
+        </h2>
+        <button id="btn-cerrar-produccion" class="btn-cerrar-form">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="form-body">
+        <div class="grid-form">
+            <div class="input-group">
+                <label class="campo-obligatorio">Fecha</label>
+                <input type="date" id="soya-fecha" class="campo-obligatorio">
+            </div>
+
+            <div class="input-group">
+                <label class="campo-obligatorio">Lote</label>
+                <input type="text" id="soya-lote" placeholder="Ej: SOYA-001">
+            </div>
+
+            <div class="input-group">
+                <label>Medidas (Uds)</label>
+                <input type="number" id="soya-medidas" class="campo-numerico" min="0" step="1">
+            </div>
+
+            <div class="input-group">
+                <label>Soya Desgranada (Kg)</label>
+                <input type="number" id="soya-desgranada" step="0.01" class="campo-numerico">
+            </div>
+
+            <div class="input-group">
+                <label>Azufre (Kg)</label>
+                <input type="number" id="soya-azufre" step="0.01" class="campo-numerico">
+            </div>
+
+            <div class="input-group">
+                <label>Humedad (%)</label>
+                <input type="number" id="soya-humedad" step="0.1" class="campo-numerico">
+            </div>
+
+            <div class="input-group">
+                <label>Producto 1ra (Kg)</label>
+                <input type="number" id="soya-primera" step="0.01" class="campo-numerico calculo-produccion">
+            </div>
+
+            <div class="input-group">
+                <label>Desecho Húmedo (Kg)</label>
+                <input type="number" id="soya-desecho-h" step="0.01" class="campo-numerico calculo-produccion">
+            </div>
+
+            <div class="input-group">
+                <label>Desecho Seco (Kg)</label>
+                <input type="number" id="soya-desecho-s" step="0.01" class="campo-numerico calculo-produccion">
+            </div>
+
+            <div class="input-group">
+                <label>Total Producción (Kg)</label>
+                <input type="number" id="soya-total" readonly class="readonly-input">
+            </div>
+
+            <div class="input-group">
+                <label>Total Útil (Kg)</label>
+                <input type="number" id="soya-total-sin" readonly class="readonly-input">
+            </div>
+
+            <div class="input-group" style="grid-column: span 2;">
+                <label>Proveedor</label>
+                <input type="text" id="soya-proveedor" placeholder="Nombre del proveedor">
+            </div>
+        </div>
+        <div class="input-group" style="grid-column: span 2;">
+    <label class="campo-obligatorio">Tipo de Producto</label>
+    <select id="soya-tipo-producto">
+        <option value="12">SOYA GRANULADA</option>
+        <option value="13">SOYA TEXTURIZADA</option>
+    </select>
+</div>
+        
+        <button id="btn-guardar-produccion" class="btn-primary">
+            <i class="fas fa-save"></i> GUARDAR REGISTRO
+        </button>
+    </div>
+</div>
+
+<!-- FORMULARIO DE DESPACHO (MODAL) -->
+<div id="form-contenedor-despacho" class="form-contenedor">
+    <div class="form-header">
+        <h2>
+            <i class="fas fa-truck"></i>
+            Registro de Despacho de Soya
+        </h2>
+        <button id="btn-cerrar-despacho" class="btn-cerrar-form">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="form-body">
+        <div class="grid-form">
+            <!-- CAMPO DE FECHA AGREGADO -->
+            <div class="input-group" style="grid-column: span 2;">
+                <label class="campo-obligatorio">Fecha de Despacho</label>
+                <input type="date" id="soya-fecha-despacho" class="campo-obligatorio">
+            </div>
+
+            <div class="input-group" style="grid-column: span 2;">
+                <label class="campo-obligatorio">Lote a Despachar</label>
+                <input type="text" id="despacho-lote" placeholder="Ej: SOYA-001">
+            </div>
+
+            <div class="input-group">
+                <label>Uds. 125g</label>
+                <input type="number" id="soya-125g" class="campo-numerico calculo-despacho" min="0" step="1">
+            </div>
+
+            <div class="input-group">
+                <label>Uds. 250g</label>
+                <input type="number" id="soya-250g" class="campo-numerico calculo-despacho" min="0" step="1">
+            </div>
+
+            <div class="input-group">
+                <label>Uds. 8Kg</label>
+                <input type="number" id="soya-8kg" class="campo-numerico calculo-despacho" min="0" step="1">
+            </div>
+
+            <div class="input-group">
+                <label>Uds. 12Kg</label>
+                <input type="number" id="soya-12kg" class="campo-numerico calculo-despacho" min="0" step="1">
+            </div>
+
+            <div class="input-group" style="grid-column: span 2;">
+                <label>Total Despacho (Kg)</label>
+                <input type="number" id="soya-kg-despacho" readonly class="readonly-input">
+            </div>
+        </div>
+        
+        <button id="btn-guardar-despacho" class="btn-primary">
+            <i class="fas fa-shipping-fast"></i> REGISTRAR ENTREGA
+        </button>
+    </div>
+</div>
+        <!-- TABLAS DE HISTORIAL -->
+        <div class="tables-container">
+            <!-- TABLA DE PRODUCCIÓN -->
+            <div class="card tabla-producto" id="tabla-produccion-container">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3><i class="fas fa-history"></i> Historial Producción</h3>
+                    <button class="btn-expand" onclick="expandirTablaSoya('tabla-produccion-completa')" 
+                            style="background:#c0392b; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">
+                        <i class="fas fa-expand"></i> Expandir
+                    </button>
+                </div>
+
+                <div style="overflow-x:auto;" id="tabla-produccion-completa">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha/Lote</th>
+                                <th>Entrada</th>
+                                <th>Resultados</th>
+                                <th>Desechos</th>
+                                <th>Proveedor</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-soya-produccion"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TABLA DE DESPACHO -->
+            <div class="card tabla-producto" id="tabla-despacho-container">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3><i class="fas fa-clipboard-list"></i> Historial Despacho</h3>
+                    <button class="btn-expand" onclick="expandirTablaSoya('tabla-despacho-completa')" 
+                            style="background:#c0392b; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">
+                        <i class="fas fa-expand"></i> Expandir
+                    </button>
+                </div>
+
+                <div style="overflow-x:auto;" id="tabla-despacho-completa">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Lote</th>
+                                <th>Presentaciones</th>
+                                <th>Total Kg</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-soya-despacho"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE BÚSQUEDA POR MES/AÑO -->
+        <div id="modal-busqueda-soya" class="expediente-modal" style="display: none;">
+            <div class="expediente-contenido" style="max-width: 400px;">
+                <div class="expediente-header">
+                    <h2>
+                        <i class="fas fa-search"></i>
+                        Buscar Producción de Soya
+                    </h2>
+                    <button class="cerrar-expediente" onclick="cerrarModalBusquedaSoya()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="expediente-body">
+                    <div class="grid-form" style="grid-template-columns: 1fr 1fr;">
+                        <div class="input-group">
+                            <label>Mes</label>
+                            <select id="buscar-mes-soya">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Año</label>
+                            <select id="buscar-anio-soya">
+                                <!-- Se llenará con JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expediente-footer">
+                    <button class="btn-cerrar" onclick="cerrarModalBusquedaSoya()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn-imprimir" onclick="buscarPorMesAnioSoya()">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL PARA EXPANDIR TABLA -->
+        <div id="modal-tabla-soya" class="expediente-modal" style="display: none;">
+            <div class="expediente-contenido" style="max-width: 1200px;">
+                <div class="expediente-header">
+                    <h2>
+                        <i class="fas fa-chart-bar"></i>
+                        Vista Detallada de Producción de Soya
+                    </h2>
+                    <button class="cerrar-expediente" onclick="cerrarModalTablaSoya()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="expediente-body" style="max-height: 70vh; overflow-y: auto;">
+                    <div id="contenido-modal-tabla-soya"></div>
+                </div>
+
+                <div class="expediente-footer">
+                    <button class="btn-cerrar" onclick="cerrarModalTablaSoya()">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                    <button class="btn-imprimir" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimir Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="menu.js"></script>
+<script src="soya.js"></script>
+</body>
+</html>

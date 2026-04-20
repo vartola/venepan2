@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materia Prima - VENEPAN</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-seedling" style="font-size: 40px; color: var(--venepan-red);"></i>
+            <h2>VENEPAN</h2>
+            <p>Sistema de Control</p>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- ===== HEADER CON MENÚ HAMBURGUESA Y LUPA ===== -->
+        <header class="top-bar">
+            <div class="page-info">
+                <h2>Inventario de Materia Prima</h2>
+                <span>Control de insumos y movimientos</span>
+            </div>
+
+            <div class="top-icons">
+                <!-- MENÚ HAMBURGUESA -->
+                <div class="menu-desplegable-container">
+                    <i class="fas fa-bars menu-hamburguesa" id="menuHamburguesa" style="cursor: pointer;"></i>
+                    
+                    <!-- Menú desplegable -->
+                    <div class="menu-desplegable" id="menuDesplegable">
+                        <div class="menu-item" data-seccion="entrada">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>Registrar Entrada</span>
+                        </div>
+                        <div class="menu-item" data-seccion="salida">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Registrar Salida</span>
+                        </div>
+                        <div class="menu-item" data-seccion="crear">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Crear Nuevo Producto</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- LUPA PARA BÚSQUEDA (opcional) -->
+                <i class="fas fa-search" id="lupa-busqueda" style="cursor: pointer;"></i>
+            </div>
+
+        </header>
+
+        <!-- ===== STATS CARDS ===== -->
+        <div class="stats-grid">
+            <div class="stat-card red">
+                <div class="stat-icon"><i class="fas fa-box"></i></div>
+                <div class="stat-data">
+                    <h3 id="total-insumos">0</h3>
+                    <p>Total Insumos</p>
+                </div>
+            </div>
+
+            <div class="stat-card red">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-data">
+                    <h3 id="cant-bajo">0</h3>
+                    <p>Bajo Stock (&lt;10kg)</p>
+                </div>
+            </div>
+
+            <div class="stat-card red">
+                <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-data">
+                    <h3 id="cant-sin">0</h3>
+                    <p>Sin Stock</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TABLA DE INVENTARIO (siempre visible) ===== -->
+        <div class="tables-container">
+            <div class="card tabla-producto">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3><i class="fas fa-boxes"></i> Stock Actual</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID / Código</th>
+                                <th>Nombre</th>
+                                <th>Lote</th>
+                                <th>Proveedor</th>
+                                <th>Stock (Kg)</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-materia"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== HISTORIAL DE MOVIMIENTOS ===== -->
+            <div class="card tabla-producto">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3><i class="fas fa-history"></i> Historial de Movimientos</h3>
+                    <button onclick="borrarHistorial()" class="btn-primary" style="padding: 8px 15px; font-size: 12px;">
+                        <i class="fas fa-trash"></i> Limpiar
+                    </button>
+                </div>
+                <div style="overflow-x: auto; max-height: 400px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-historial"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== OVERLAY Y MODALES ===== -->
+        <div id="form-overlay-materia" class="form-overlay"></div>
+
+        <!-- MODAL PARA CREAR NUEVO PRODUCTO -->
+        <div id="modal-crear-producto" class="form-contenedor">
+            <div class="form-header">
+                <h2>
+                    <i class="fas fa-plus-circle"></i>
+                    Crear Nuevo Producto
+                </h2>
+                <button id="btn-cerrar-crear" class="btn-cerrar-form">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="form-body">
+                <div class="grid-form">
+                    <div class="input-group">
+                        <label class="campo-obligatorio">ID / Código</label>
+                        <input type="text" id="materia-id" placeholder="Ej: HAR-001">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="campo-obligatorio">Nombre del Insumo</label>
+                        <input type="text" id="materia-nombre" placeholder="Ej: Harina Pan">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Lote</label>
+                        <input type="text" id="materia-lote" placeholder="Ej: LOTE-2024-A">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Stock Inicial (Kg)</label>
+                        <input type="number" id="materia-kilos" step="0.01" class="campo-numerico">
+                    </div>
+
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label>Proveedor</label>
+                        <input type="text" id="materia-proveedor" placeholder="Nombre del proveedor">
+                    </div>
+                </div>
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label>Fecha de Ingreso</label>
+                        <input type="date" id="materia-fecha-ingreso" class="campo-fecha" readonly style="background-color: #f0f0f0;">
+                    </div>
+                
+                <button id="btn-guardar-materia" class="btn-primary">
+                    <i class="fas fa-save"></i> GUARDAR PRODUCTO
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL PARA MOVIMIENTOS (ENTRADA/SALIDA) -->
+        <div id="modal-movimiento" class="form-contenedor">
+            <div class="form-header">
+                <h2 id="titulo-movimiento">
+                    <i class="fas fa-arrow-down"></i>
+                    Registrar Entrada
+                </h2>
+                <button id="btn-cerrar-movimiento" class="btn-cerrar-form">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="form-body">
+                <div class="grid-form">
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label class="campo-obligatorio">Buscar Producto</label>
+                        <input type="text" id="mov-buscador" placeholder="Escriba nombre o código..." oninput="buscarParaMovimiento()">
+                        <div id="sugerencias-mov" style="margin-top: 5px; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;"></div>
+                    </div>
+
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label class="campo-obligatorio">Cantidad (Kg)</label>
+                        <input type="number" id="mov-kilos" step="0.01" class="campo-numerico">
+                    </div>
+
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label>Detalle / Motivo</label>
+                        <input type="text" id="mov-detalle" placeholder="Ej: Proveedor o motivo del consumo">
+                    </div>
+
+                    <input type="hidden" id="mov-id-seleccionado">
+                    <input type="hidden" id="mov-nombre-seleccionado">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="btn-confirmar-mov" class="btn-primary" style="flex: 2;">
+                        <i class="fas fa-check"></i> CONFIRMAR
+                    </button>
+                    <button onclick="cerrarModalMovimiento()" class="btn-primary" style="flex: 1; background: #95a5a6;">
+                        <i class="fas fa-times"></i> CANCELAR
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE BÚSQUEDA POR MES/AÑO (opcional, si quieres filtrar historial) -->
+        <div id="modal-busqueda-materia" class="expediente-modal" style="display: none;">
+            <div class="expediente-contenido" style="max-width: 400px;">
+                <div class="expediente-header">
+                    <h2>
+                        <i class="fas fa-search"></i>
+                        Buscar en Historial
+                    </h2>
+                    <button class="cerrar-expediente" onclick="cerrarModalBusquedaMateria()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="expediente-body">
+                    <div class="grid-form" style="grid-template-columns: 1fr 1fr;">
+                        <div class="input-group">
+                            <label>Mes</label>
+                            <select id="buscar-mes-materia">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Año</label>
+                            <select id="buscar-anio-materia"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expediente-footer">
+                    <button class="btn-cerrar" onclick="cerrarModalBusquedaMateria()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn-imprimir" onclick="buscarHistorialPorMesAnio()">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        
+
+    </main>
+</div>
+
+<script src="menu.js"></script>
+<script src="Materia.js"></script>
+</body>
+</html>
